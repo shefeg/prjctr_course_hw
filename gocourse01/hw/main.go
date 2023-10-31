@@ -18,7 +18,7 @@ type (
 
 func formatTitle(text title) {
     white := color.New(color.FgWhite)
-    boldWhite := whilte.Add(color.Bold)
+    boldWhite := white.Add(color.Bold)
     boldWhite.Println(text)
 }
 
