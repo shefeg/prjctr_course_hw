@@ -31,10 +31,8 @@ func (b body) Border() {
 	green := color.New(color.FgGreen)
 	for i := 0; i <= len([]rune(b)); i++ {
 		green.Print("-")
-		if i == len([]rune(b)) {
-			fmt.Println()
-		}
 	}
+	fmt.Println()
 }
 
 func (ep educationPeriod) calcYears() int {
