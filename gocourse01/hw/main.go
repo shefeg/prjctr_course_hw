@@ -12,14 +12,29 @@ type (
 	body string
 	educationPeriod string
 	calcYears func ()
-	generateTitle func (text string)
-	generateBody func (text string)
+	generateTitle func (text title)
+	generateBody func (text body)
 )
 
-func (t title) formatTitle() {
+func formatTitle(text title) {
     whilte := color.New(color.FgWhite)
     boldWhite := whilte.Add(color.Bold)
-    boldWhite.Println(t)
+    boldWhite.Println(text)
+}
+
+func formatBody(text body) {
+    blue := color.New(color.FgBlue)
+    blue.Println(text)
+}
+
+func (b body) Border() {
+	green := color.New(color.FgGreen)
+	for i := 0; i <= len([]rune(b)); i++ {
+		green.Print("-")
+		if i == len([]rune(b)) {
+			fmt.Println()
+		}
+	}
 }
 
 func (ep educationPeriod) calcYears() int {
@@ -30,22 +45,30 @@ func (ep educationPeriod) calcYears() int {
 }
 
 func printYears (years int) {
-	fmt.Printf("%d years\n", years)
+	red := color.New(color.FgHiRed)
+	red.Printf("Education lasted: %d years\n", years)
 }
 
-func generateChapter (title generateTitle, body generateBody)
+func generateChapter (title_text title, body_text body, years int, title generateTitle, body generateBody) {
+	body_text.Border()
+	title(title_text)
+	body(body_text)
+	printYears(years)
+	body_text.Border()
+}
 
 const (
-	school_period educationPeriod = "2008-2010"
-	school_body = `
-	Went to scool. It was very nice! Better than kindegrarden`
+	school_period educationPeriod = "1995-2005"
+	uni_period educationPeriod = "2005-2010"
+	school_title title = "School time! 🤪"
+	uni_title title = "University time! ✍"
+	school_body body = `
+Went to scool. It was very nice! Better than kindegrarden`
+	uni_body body = `
+Went to University. It was better than school!`
 )
 
-
 func main() {
-	printYears(school_period.calcYears())
-	// calcYears(2008,2010)
-    whilte := color.New(color.FgWhite)
-    boldWhite := whilte.Add(color.Bold)
-    boldWhite.Println("This will print text in bold white.")
+	generateChapter(school_title, school_body, school_period.calcYears(), formatTitle, formatBody)
+	generateChapter(uni_title, uni_body, uni_period.calcYears(), formatTitle, formatBody)
 }
