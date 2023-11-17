@@ -2,8 +2,18 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 	"os"
+    "reflect"
+    "runtime"
+	"strings"
 )
+
+func GetFunctionName(i interface{}) string {
+	fullName := runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
+	_, name, _ := strings.Cut(fullName, ".")
+    return name
+}
 
 type Human struct {
 	Name string
@@ -56,6 +66,10 @@ type Bug struct {
 	IsBig bool
 }
 
+func (h Human) Choice(choice string) {
+	fmt.Printf(choice)
+}
+
 func (b Bug) Bite() {
 	if b.IsBig {
 		fmt.Printf("Big bug bites her victim and it passes out!")
@@ -72,7 +86,7 @@ func (h *Human) FindBag(backpack Backpack) {
 		if backpack.Matches.Exist == true {
 			fmt.Printf("- Matches\n") 
 		} else if backpack.Matches.Exist == false {
-				fmt.Printf("- No Matches\n") 
+			fmt.Printf("- No Matches\n") 
 		}
 		if backpack.Flashlight.Exist == true {
 			fmt.Printf("- Flashlight\n") 
@@ -89,11 +103,113 @@ func (h *Human) FindBag(backpack Backpack) {
 	}
 }
 
-func (h Human) Choice(choice string) {
-	fmt.Printf(choice)
+func answerValidation() int {
+	var s string
+	var i int
+    fmt.Println("Enter answer number: 1 or 2")
+    for {
+		fmt.Scan(&s)
+        i, _ = strconv.Atoi(s)
+        if i == 1 || i == 2 {
+			break
+		} else {
+			fmt.Println("Enter a valid number: 1 or 2")
+		}
+	}
+	return i
 }
 
-var a int
+func rememberNameChoice(remember bool, men Human) {
+	men.NameMemory = remember
+	if men.NameMemory {
+		fmt.Printf("%s remembers his name.\n", men.Name)
+	} else {
+		fmt.Printf("%s doesn't remember his name.\n", men.Name)
+	}
+}
+	
+func findBagChoice(bagFind bool, men Human, bag Backpack) {
+	men.Bag = bagFind
+	if men.Bag {
+		bag.Matches.Exist = true
+		bag.Flashlight.Exist = true
+		bag.Knife.Exist = true
+		men.FindBag(bag)
+	} else {
+		men.Bag = false
+		men.FindBag(bag)
+	}
+}
+	
+func caveChoice(caveDark bool, men Human, cave Cave) {
+	cave.Dark = caveDark
+	if cave.Dark {
+		fmt.Printf("%s goes from cave to the forest.\n", men.Name)
+	} else {
+		fmt.Printf("%s stays in cage and waits for help.\n", men.Name)
+		os.Exit(0)
+	}
+}
+
+func roadChoice(location string, men Human, road Road) string {
+	fmt.Printf("%s goes from cave to the %s.\n", men.Name, location)
+	return location
+}
+
+func bodyChoice(isDead bool, body Body) (bool, string) {
+	var bodyType string
+	if isDead {
+		bodyType = "animal"
+		fmt.Printf("Body belongs to dead %s.\n", bodyType)
+	} else {
+		bodyType = "human"
+		fmt.Printf("Body belongs to alive %s.\n", bodyType)
+	}
+	return isDead, bodyType
+}
+
+func comeTobodyChoice(come bool, men Human, body Body) {
+	if come {
+		if !body.IsDead {
+			fmt.Printf("%s comes closer to the body. Alive %s kills %s.\n",  men.Name, body.Type, men.Name)
+			os.Exit(0)
+		} else {
+			fmt.Printf("%s comes closer to the body. %s body smells bad.\n", men.Name, body.Type)
+		}
+	} else {
+		fmt.Printf("%s just leaves %s body and goes along.\n", men.Name, body.Type)
+	}
+}
+
+func campPeopleChoice(camp Camp, men Human) {
+	if camp.HasPeople {
+		fmt.Printf("%s finds that camp is full of people.\n", men.Name)
+	} else {
+		fmt.Printf("%s finds that camp is empty.\n", men.Name)
+	}
+}
+
+func campDecisionChoice(rest bool, men Human) {
+	if rest {
+		fmt.Printf("%s decides to rest.\n", men.Name)
+		fmt.Printf("In the nearest tent %s finds safe with two numbers and tries to open it.\n", men.Name)
+	} else {
+		fmt.Printf("%s decides to proceed journey.\n", men.Name)
+		fmt.Printf("After some time %s finds his home.\n", men.Name)
+		os.Exit(0)
+	}
+}
+
+func openSafeChoice(open bool, men Human, bug Bug) {
+	if open {
+		fmt.Printf("%s opens safe.\n", men.Name)
+		bug := Bug{true}
+		bug.Bite()
+	} else {
+		fmt.Printf("%s can't find the code.\n", men.Name)
+		os.Exit(0)
+	}
+}
 
 func main() {
 	men := &Human{
@@ -101,141 +217,111 @@ func main() {
 		NameMemory: false,
 		Bag: false,
 	}
-
-	cave := Cave{"big cage entrance", true}
-
+	cave := &Cave{"big cage entrance", true}
 	bag := Backpack{
 		Size: 10,
 		Matches: &Matches{"Matches", false},
 		Flashlight: &Flashlight{"Flashlight", false},
 		Knife: &Knife{"Knife", false},
 	}
+	road := &Road{}
+	body := &Body{}
+	camp := &Camp{}
+	bug := &Bug{}
+	
+	scenarioMapSlice := []map[string]interface{}{
+		{
+			"question": "Does %s remember his name?\n1: Yes\n2: No\n", 
+			"choice": rememberNameChoice,
+		},
+		{
+			"question": "Does %s find a bag?\n1: Yes\n2: No\n", 
+			"choice": findBagChoice,
+		},
+		{
+			"question": "Is it dark in the cave for %s?\n1: Yes\n2: No\n", 
+			"choice": caveChoice,
+		},
+		{
+			"question": "%s uses the road that leads to?\n1: forest\n2: field\n", 
+			"choice": roadChoice,
+		},
+		{
+			"question": "%s sees body in the %s. What is this body?\n1: animal\n2: human\n", 
+			"choice": bodyChoice,
+		},
+		{
+			"question": "What should %s do to the body?\n1: Leave the body\n2: Come closer and look\n", 
+			"choice": comeTobodyChoice,
+		},
+		{
+			"question": "After some time %s comes to camp. How many people in the camp?\n1: Camp is full of people\n2: Camp is empty\n", 
+			"choice": campPeopleChoice,
+		},
+		{
+			"question": "What should %s do in the camp?\n1: Have a rest\n2: Proceed journey\n",
+			"choice": campDecisionChoice,
+		},
+		{
+			"question": "Can %s find the code and open safe?\n1: Finds the code.\n2: Can't find code.\n",
+			"choice": openSafeChoice,
+		},
+	}
 
 	fmt.Printf("%s wokes up near %s.\n", men.Name, cave.Entry)
 
-	fmt.Printf("Does %s remember his name? 1 or 2?\n", men.Name)
-	fmt.Scan(&a)
-	switch a {
-	case 1:
-		men.NameMemory = true
-		fmt.Printf("%s remembers his name.\n", men.Name)
-	case 2:
-		men.NameMemory = false
-		fmt.Printf("%s doesn't remember his name.\n", men.Name)
-	}
-	fmt.Println()
-
-	fmt.Printf("Does %s find a bag? 1 or 2?\n", men.Name)
-	fmt.Scan(&a)
-	switch a {
-	case 1:
-		men.Bag = true
-		bag.Matches.Exist = true
-		bag.Flashlight.Exist = true
-		bag.Knife.Exist = true
-		men.FindBag(bag)
-	case 2:
-		men.Bag = false
-		men.FindBag(bag)
-	}
-	fmt.Println()
-	
-	fmt.Printf("Is it dark in the cage? 1 or 2?\n")
-	fmt.Scan(&a)
-	switch a {
-	case 1:
-		cave.Dark = false
-		fmt.Printf("%s stays in cage and waits for help.\n", men.Name)
-		os.Exit(0)
-	case 2:
-		cave.Dark = true
-		fmt.Printf("Goes from cage to the forest.\n")
-	}
-	fmt.Println()
-	
-	road := &Road{}
-	fmt.Printf("%s uses the road that leads to? 1 or 2?\n", men.Name)
-	fmt.Scan(&a)
-	switch a {
-	case 1:
-		road.Destination = "forest"
-		fmt.Printf("Road leads to the %s.\n", road.Destination)
-	case 2:
-		road.Destination = "field"
-		fmt.Printf("Road leads to the %s.\n", road.Destination)
-	}
-	fmt.Println()
-	
-	body := &Body{}
-	fmt.Printf("%s sees body in the %s. What is this body? 1 or 2?\n", men.Name, road.Destination)
-	fmt.Scan(&a)
-	switch a {
-	case 1:
-		body.IsDead = true
-		body.Type = "animal"
-		if body.IsDead {
-			fmt.Printf("Body belongs to dead %s.\n", body.Type)
+	for _, v := range scenarioMapSlice {
+		switch GetFunctionName(v["choice"]) {
+		case "bodyChoice":
+			fmt.Printf(fmt.Sprint(v["question"]), men.Name, road.Destination)
+		default:
+			fmt.Printf(fmt.Sprint(v["question"]), men.Name)
 		}
-	case 2:
-		body.Type = "human"
-		if body.IsDead == false {
-			fmt.Printf("Body belongs to alive %s.\n", body.Type)
+		a := answerValidation()
+		switch a {
+		case 1:
+			switch GetFunctionName(v["choice"]) {
+			case "rememberNameChoice":
+				v["choice"].(func (remember bool, men Human))(true, *men)
+			case "findBagChoice":
+				v["choice"].(func (bagFind bool, men Human, bag Backpack))(true, *men, bag)
+			case "caveChoice":
+				v["choice"].(func (caveDark bool, men Human, cave Cave))(true, *men, *cave)
+			case "roadChoice":
+				road.Destination = v["choice"].(func (location string, men Human, road Road) string)("forest", *men, *road)
+			case "bodyChoice":
+				body.IsDead, body.Type = v["choice"].(func (isDead bool,body Body) (bool, string))(true, *body)
+			case "comeTobodyChoice":
+				v["choice"].(func (come bool, men Human, body Body))(true, *men, *body)
+			case "campPeopleChoice":
+				v["choice"].(func (camp Camp, men Human))(*camp, *men)
+			case "campDecisionChoice":
+				v["choice"].(func (rest bool, men Human))(true, *men)
+			case "openSafeChoice":
+				v["choice"].(func (open bool, men Human, bug Bug))(true, *men, *bug)
+			}
+		case 2:
+			switch GetFunctionName(v["choice"]) {
+			case "rememberNameChoice":
+				v["choice"].(func (remember bool, men Human))(false,*men)
+			case "findBagChoice":
+				v["choice"].(func (bagFind bool, men Human, bag Backpack))(false, *men, bag)
+			case "caveChoice":
+				v["choice"].(func (caveDark bool, men Human, cave Cave))(false, *men, *cave)
+			case "roadChoice":
+				road.Destination = v["choice"].(func (location string, men Human, road Road) string)("field", *men, *road)
+			case "bodyChoice":
+				body.IsDead, body.Type = v["choice"].(func (isDead bool,body Body) (bool, string))(false,*body)
+			case "comeTobodyChoice":
+				v["choice"].(func (come bool, men Human, body Body))(false, *men, *body)
+			case "campPeopleChoice":
+				v["choice"].(func (camp Camp, men Human))(*camp, *men,)
+			case "campDecisionChoice":
+				v["choice"].(func (rest bool, men Human))(false, *men)
+			case "openSafeChoice":
+				v["choice"].(func (open bool, men Human, bug Bug))(false, *men, *bug)
+			}
 		}
+		fmt.Println()
 	}
-	fmt.Println()
-
-	fmt.Printf("What should %s do to the body? Leave the body or come closer and look? 1 or 2?\n", men.Name)
-	fmt.Scan(&a)
-	switch a {
-	case 1:
-		fmt.Printf("%s just leaves %s body and goes along.\n", men.Name, body.Type)
-	case 2:
-		if body.IsDead == false {
-			fmt.Printf("%s comes closer to the body. Alive %s kills %s.\n",  men.Name, body.Type, men.Name)
-			os.Exit(0)
-		} else {
-			fmt.Printf("%s comes closer to the body. %s body smells bad.\n", men.Name, body.Type)
-		}
-	}
-	fmt.Println()
-
-	camp := &Camp{}
-	if camp.HasPeople {
-		fmt.Printf("After some time %s comes to camp full of people.\n", men.Name)
-	} else {
-		fmt.Printf("After some time %s comes to camp with no people.\n", men.Name)
-	}
-	fmt.Println()
-
-	var proceed_journey bool
-	fmt.Printf("What should %s do in the camp? Rest of proceed journey? 1 or 2?\n", men.Name)
-	fmt.Scan(&a)
-	switch a {
-	case 1:
-		if proceed_journey == false {
-			fmt.Printf("%s decides to rest.\n", men.Name)
-			fmt.Printf("In the nearest tent %s finds safe with two numbers and tries to open it.\n", men.Name)
-		}
-	case 2:
-		proceed_journey = true
-		if proceed_journey {
-			fmt.Printf("%s decides to proceed journey.\n", men.Name)
-			fmt.Printf("After some time %s finds his home.\n", men.Name)
-			os.Exit(0)
-		}
-	}
-	
-	fmt.Println()
-	fmt.Printf("Can %s find the code and open safe? 1 or 2?\n", men.Name)
-	fmt.Scan(&a)
-	switch a {
-	case 1:
-		fmt.Printf("%s opens safe.\n", men.Name)
-		bug := Bug{true}
-		bug.Bite()
-	case 2:
-		fmt.Printf("%s can't find the code.\n", men.Name)
-		os.Exit(0)
-	}
-
 }
