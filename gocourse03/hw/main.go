@@ -320,7 +320,6 @@ func main() {
         default:
             panic("unsupported")
         }
-        }
         fmt.Println()
     }
 }
