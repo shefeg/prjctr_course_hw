@@ -124,16 +124,16 @@ func rememberNameChoice(remember bool, men Human) {
     }
 }
 
-func findBagChoice(bagFind bool, men Human, bag Backpack) {
+func findBagChoice(bagFind bool, men Human, bag *Backpack) {
     men.Bag = bagFind
     if men.Bag {
         bag.Matches.Exist = true
         bag.Flashlight.Exist = true
         bag.Knife.Exist = true
-        men.FindBag(bag)
+        men.FindBag(*bag)
     } else {
         men.Bag = false
-        men.FindBag(bag)
+        men.FindBag(*bag)
     }
 }
 
@@ -280,7 +280,7 @@ func main() {
             case "rememberNameChoice":
                 v["choice"].(func(remember bool, men Human))(true, *men)
             case "findBagChoice":
-                v["choice"].(func(bagFind bool, men Human, bag Backpack))(true, *men, *bag)
+                v["choice"].(func(bagFind bool, men Human, bag *Backpack))(true, *men, bag)
             case "caveChoice":
                 v["choice"].(func(caveDark bool, men Human, cave Cave))(true, *men, *cave)
             case "roadChoice":
