@@ -124,16 +124,16 @@ func rememberNameChoice(remember bool, men Human) {
     }
 }
 
-func findBagChoice(bagFind bool, men Human, bag *Backpack) {
+func findBagChoice(bagFind bool, men Human, bag Backpack) {
     men.Bag = bagFind
     if men.Bag {
         bag.Matches.Exist = true
         bag.Flashlight.Exist = true
         bag.Knife.Exist = true
-        men.FindBag(*bag)
+        men.FindBag(bag)
     } else {
         men.Bag = false
-        men.FindBag(*bag)
+        men.FindBag(bag)
     }
 }
 
