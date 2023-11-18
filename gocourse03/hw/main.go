@@ -66,10 +66,6 @@ type Bug struct {
     IsBig bool
 }
 
-func (h Human) Choice(choice string) {
-    fmt.Printf(choice)
-}
-
 func (b Bug) Bite() {
     if b.IsBig {
         fmt.Printf("Big bug bites her victim and it passes out!")
