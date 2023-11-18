@@ -317,6 +317,9 @@ func main() {
             case "openSafeChoice":
                 v["choice"].(func(open bool, men Human, bug Bug))(false, *men, *bug)
             }
+        default:
+            panic("unsupported")
+        }
         }
         fmt.Println()
     }
