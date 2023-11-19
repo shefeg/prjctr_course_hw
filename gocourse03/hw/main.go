@@ -66,7 +66,7 @@ type Bug struct {
     IsBig bool
 }
 
-func (b Bug) Bite() {
+func (b *Bug) Bite() {
     if b.IsBig {
         fmt.Printf("Big bug bites her victim and it passes out!")
     } else {
@@ -115,7 +115,7 @@ func answerValidation() int {
     return i
 }
 
-func rememberNameChoice(remember bool, men Human) {
+func rememberNameChoice(remember bool, men *Human) {
     men.NameMemory = remember
     if men.NameMemory {
         fmt.Printf("%s remembers his name.\n", men.Name)
@@ -124,7 +124,7 @@ func rememberNameChoice(remember bool, men Human) {
     }
 }
 
-func findBagChoice(bagFind bool, men Human, bag *Backpack) {
+func findBagChoice(bagFind bool, men *Human, bag *Backpack) {
     men.Bag = bagFind
     if men.Bag {
         bag.Matches.Exist = true
@@ -137,7 +137,7 @@ func findBagChoice(bagFind bool, men Human, bag *Backpack) {
     }
 }
 
-func caveChoice(caveDark bool, men Human, cave Cave) {
+func caveChoice(caveDark bool, men *Human, cave *Cave) {
     cave.Dark = caveDark
     if cave.Dark {
         fmt.Printf("%s goes from cave to the forest.\n", men.Name)
@@ -147,24 +147,24 @@ func caveChoice(caveDark bool, men Human, cave Cave) {
     }
 }
 
-func roadChoice(location string, men Human, road Road) string {
+func roadChoice(location string, men *Human, road *Road) {
+    road.Destination = location
     fmt.Printf("%s goes from cave to the %s.\n", men.Name, location)
-    return location
 }
 
-func bodyChoice(isDead bool, body Body) (bool, string) {
-    var bodyType string
+func bodyChoice(isDead bool, body *Body) {
     if isDead {
-        bodyType = "animal"
-        fmt.Printf("Body belongs to dead %s.\n", bodyType)
+        body.IsDead = true
+        body.Type = "animal"
+        fmt.Printf("Body belongs to dead %s.\n", body.Type)
     } else {
-        bodyType = "human"
-        fmt.Printf("Body belongs to alive %s.\n", bodyType)
+        body.IsDead = false
+        body.Type = "human"
+        fmt.Printf("Body belongs to alive %s.\n", body.Type)
     }
-    return isDead, bodyType
 }
 
-func comeTobodyChoice(come bool, men Human, body Body) {
+func comeTobodyChoice(come bool, men *Human, body *Body) {
     if come {
         if !body.IsDead {
             fmt.Printf("%s comes closer to the body. Alive %s kills %s.\n", men.Name, body.Type, men.Name)
@@ -177,7 +177,7 @@ func comeTobodyChoice(come bool, men Human, body Body) {
     }
 }
 
-func campPeopleChoice(camp Camp, men Human) {
+func campPeopleChoice(camp *Camp, men *Human) {
     if camp.HasPeople {
         fmt.Printf("%s finds that camp is full of people.\n", men.Name)
     } else {
@@ -185,7 +185,7 @@ func campPeopleChoice(camp Camp, men Human) {
     }
 }
 
-func campDecisionChoice(rest bool, men Human) {
+func campDecisionChoice(rest bool, men *Human) {
     if rest {
         fmt.Printf("%s decides to rest.\n", men.Name)
         fmt.Printf("In the nearest tent %s finds safe with two numbers and tries to open it.\n", men.Name)
@@ -196,7 +196,7 @@ func campDecisionChoice(rest bool, men Human) {
     }
 }
 
-func openSafeChoice(open bool, men Human, bug Bug) {
+func openSafeChoice(open bool, men *Human, bug *Bug) {
     if open {
         fmt.Printf("%s opens safe.\n", men.Name)
         bug := Bug{true}
@@ -278,44 +278,44 @@ func main() {
         case 1:
             switch GetFunctionName(v["choice"]) {
             case "rememberNameChoice":
-                v["choice"].(func(remember bool, men Human))(true, *men)
+                v["choice"].(func(remember bool, men *Human))(true, men)
             case "findBagChoice":
-                v["choice"].(func(bagFind bool, men Human, bag *Backpack))(true, *men, bag)
+                v["choice"].(func(bagFind bool, men *Human, bag *Backpack))(true, men, bag)
             case "caveChoice":
-                v["choice"].(func(caveDark bool, men Human, cave Cave))(true, *men, *cave)
+                v["choice"].(func(caveDark bool, men *Human, cave *Cave))(true, men, cave)
             case "roadChoice":
-                road.Destination = v["choice"].(func(location string, men Human, road Road) string)("forest", *men, *road)
+                v["choice"].(func(location string, men *Human, road *Road))("forest", men, road)
             case "bodyChoice":
-                body.IsDead, body.Type = v["choice"].(func(isDead bool, body Body) (bool, string))(true, *body)
+                v["choice"].(func(isDead bool, body *Body))(true, body)
             case "comeTobodyChoice":
-                v["choice"].(func(come bool, men Human, body Body))(true, *men, *body)
+                v["choice"].(func(come bool, men *Human, body *Body))(false, men, body)
             case "campPeopleChoice":
-                v["choice"].(func(camp Camp, men Human))(*camp, *men)
+                v["choice"].(func(camp *Camp, men *Human))(camp, men)
             case "campDecisionChoice":
-                v["choice"].(func(rest bool, men Human))(true, *men)
+                v["choice"].(func(rest bool, men *Human))(true, men)
             case "openSafeChoice":
-                v["choice"].(func(open bool, men Human, bug Bug))(true, *men, *bug)
+                v["choice"].(func(open bool, men *Human, bug *Bug))(true, men, bug)
             }
         case 2:
             switch GetFunctionName(v["choice"]) {
             case "rememberNameChoice":
-                v["choice"].(func(remember bool, men Human))(false, *men)
+                v["choice"].(func(remember bool, men *Human))(false, men)
             case "findBagChoice":
-                v["choice"].(func(bagFind bool, men Human, bag Backpack))(false, *men, *bag)
+                v["choice"].(func(bagFind bool, men *Human, bag *Backpack))(false, men, bag)
             case "caveChoice":
-                v["choice"].(func(caveDark bool, men Human, cave Cave))(false, *men, *cave)
+                v["choice"].(func(caveDark bool, men *Human, cave *Cave))(false, men, cave)
             case "roadChoice":
-                road.Destination = v["choice"].(func(location string, men Human, road Road) string)("field", *men, *road)
+                v["choice"].(func(location string, men *Human, road *Road))("field", men, road)
             case "bodyChoice":
-                body.IsDead, body.Type = v["choice"].(func(isDead bool, body Body) (bool, string))(false, *body)
+                v["choice"].(func(isDead bool, body *Body))(false, body)
             case "comeTobodyChoice":
-                v["choice"].(func(come bool, men Human, body Body))(false, *men, *body)
+                v["choice"].(func(come bool, men *Human, body *Body))(true, men, body)
             case "campPeopleChoice":
-                v["choice"].(func(camp Camp, men Human))(*camp, *men)
+                v["choice"].(func(camp *Camp, men *Human))(camp, men)
             case "campDecisionChoice":
-                v["choice"].(func(rest bool, men Human))(false, *men)
+                v["choice"].(func(rest bool, men *Human))(false, men)
             case "openSafeChoice":
-                v["choice"].(func(open bool, men Human, bug Bug))(false, *men, *bug)
+                v["choice"].(func(open bool, men *Human, bug *Bug))(false, men, bug)
             }
         default:
             panic("unsupported")
