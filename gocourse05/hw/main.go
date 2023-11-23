@@ -147,5 +147,5 @@ func main() {
 			}
 		}
 	}
-	fmt.Println("it's a draw!")
+	fmt.Println("It's a draw!")
 }
