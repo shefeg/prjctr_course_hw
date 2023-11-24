@@ -13,15 +13,26 @@ type Key struct {
 	y int
 }
 
-func initField(field map[Key]string, size int) {
+func printField(init bool, field map[Key]string, size int) {
 	fmt.Println("Initing field")
 	for i := 1; i <= size; i++ {
 		s := strconv.Itoa(i)
-		for j := 1; j <= size; j++ {
-			field[Key{x: i, y: j}] = "-"
-			s += field[Key{x: i, y: j}]
+		if !init {
+			fmt.Print(s)
 		}
-		fmt.Println(s)
+		for j := 1; j <= size; j++ {
+			if init {
+				field[Key{x: i, y: j}] = "-"
+				s += field[Key{x: i, y: j}]
+			} else {
+				fmt.Print(field[Key{x: i, y: j}])
+			}
+		}
+		if init {
+			fmt.Println(s)
+		} else {
+			fmt.Println()
+		}
 	}
 	fmt.Print(" ")
 	for i := 1; i <= size; i++ {
@@ -34,7 +45,8 @@ func moveValidation(move string, fieldSize int) (int, int) {
 	var s []string
 	var x int
 	var y int
-	var err error
+	var xerr error
+	var yerr error
 	intro := "Enter move ('%s') and coordinates from 1 to %d splitting with space. Example: 1 1\n"
 	scanner := bufio.NewScanner(os.Stdin)
 LoopStart:
@@ -51,10 +63,10 @@ LoopStart:
 		if len(result) < 2 {
 			break LoopStart
 		} else {
-			x, err = strconv.Atoi(result[0])
-			y, err = strconv.Atoi(result[1])
+			x, xerr = strconv.Atoi(result[0])
+			y, yerr = strconv.Atoi(result[1])
 		}
-		if err != nil || move != move || x < 1 || y < 1 || x > fieldSize || y > fieldSize {
+		if xerr != nil || yerr != nil || move != move || x < 1 || y < 1 || x > fieldSize || y > fieldSize {
 			fmt.Printf(intro, fieldSize)
 		} else {
 			break
@@ -75,28 +87,16 @@ func updateField(move string, answer func(string, int) (int, int), field map[Key
 	}
 	return true
 }
-func printResult(field map[Key]string, size int) {
-	for i := 1; i <= size; i++ {
-		s := strconv.Itoa(i)
-		fmt.Print(s)
-		for j := 1; j <= size; j++ {
-			fmt.Print(field[Key{x: i, y: j}])
-		}
-		fmt.Println()
-	}
-	fmt.Print(" ")
-	for i := 1; i <= size; i++ {
-		fmt.Print(i)
-	}
-	fmt.Println()
-}
+
 func checkResult(move string, field map[Key]string, size int) bool {
 	fmt.Println()
 	var line int
 	for i := 1; i <= size; i++ {
 		line = 0
 		for j := 1; j <= size; j++ {
-			if field[Key{x: i, y: j}] == move || field[Key{x: j, y: i}] == move {
+			if field[Key{x: i, y: j}] == move {
+				line++
+			} else if field[Key{x: j, y: i}] == move {
 				line++
 			}
 		}
@@ -104,13 +104,19 @@ func checkResult(move string, field map[Key]string, size int) bool {
 			return true
 		}
 	}
-	// hacky solution need advice to make better
-	if field[Key{x: 1, y: 1}] == move && field[Key{x: 3, y: 3}] == move && field[Key{x: 2, y: 2}] == move {
-		return true
-	} else if field[Key{x: 1, y: 3}] == move && field[Key{x: 3, y: 1}] == move && field[Key{x: 2, y: 2}] == move {
-		return true
+	line = 0
+	for i := 1; i <= size; i++ {
+		for j := 1; j <= size; j++ {
+			if i == j && field[Key{x: i, y: j}] == move  {
+				line++
+			} else if i + j == size + 1 && field[Key{x: i, y: j}] == move  {
+				line++
+			}
+		}
+		if line == size {
+			return true
+		}
 	}
-
 	return false
 }
 
@@ -120,7 +126,7 @@ const (
 
 func main() {
 	field := make(map[Key]string)
-	initField(field, fieldSize)
+	printField(true, field, fieldSize)
 	fmt.Println()
 	for i := 1; i <= fieldSize*3; i++ {
 		if i%2 != 0 {
@@ -129,7 +135,7 @@ func main() {
 			for !updateField("x", moveValidation, field, fieldSize) {
 				fmt.Println("Make correct move!")
 			}
-			printResult(field, fieldSize)
+			printField(false, field, fieldSize)
 			if checkResult("x", field, fieldSize) {
 				fmt.Printf("Player %d won!\n", player)
 				os.Exit(0)
@@ -140,7 +146,7 @@ func main() {
 			for !updateField("o", moveValidation, field, fieldSize) {
 				fmt.Println("Make correct move!")
 			}
-			printResult(field, fieldSize)
+			printField(false, field, fieldSize)
 			if checkResult("o", field, fieldSize) {
 				fmt.Printf("Player %d won!\n", player)
 				os.Exit(0)
