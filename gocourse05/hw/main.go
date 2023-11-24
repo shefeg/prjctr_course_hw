@@ -14,7 +14,9 @@ type Key struct {
 }
 
 func printField(init bool, field map[Key]string, size int) {
-	fmt.Println("Initing field")
+	if init {
+		fmt.Println("Initing field")
+	}
 	for i := 1; i <= size; i++ {
 		s := strconv.Itoa(i)
 		if !init {
