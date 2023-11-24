@@ -92,26 +92,27 @@ func updateField(move string, answer func(string, int) (int, int), field map[Key
 
 func checkResult(move string, field map[Key]string, size int) bool {
 	fmt.Println()
-	var line int
+	var h_line int
+	var v_line int
 	var d_line int
 	for i := 1; i <= size; i++ {
-		line = 0
+		h_line = 0
 		for j := 1; j <= size; j++ {
 			if field[Key{x: i, y: j}] == move {
-				line++
+				h_line++
 			}
-			if line == size {
+			if h_line == size {
 				return true
 			}
 		}
 	}
 	for i := 1; i <= size; i++ {
-		line = 0
+		v_line = 0
 		for j := 1; j <= size; j++ {
 			if field[Key{x: j, y: i}] == move {
-				line++
+				v_line++
 			}
-			if line == size {
+			if v_line == size {
 				return true
 			}
 		}
