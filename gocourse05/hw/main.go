@@ -93,8 +93,6 @@ func updateField(move string, answer func(string, int) (int, int), field map[Key
 func checkResult(move string, field map[Key]string, size int) bool {
 	fmt.Println()
 	var h_line int
-	var v_line int
-	var d_line int
 	for i := 1; i <= size; i++ {
 		h_line = 0
 		for j := 1; j <= size; j++ {
@@ -106,6 +104,7 @@ func checkResult(move string, field map[Key]string, size int) bool {
 			}
 		}
 	}
+	var v_line int
 	for i := 1; i <= size; i++ {
 		v_line = 0
 		for j := 1; j <= size; j++ {
@@ -117,23 +116,22 @@ func checkResult(move string, field map[Key]string, size int) bool {
 			}
 		}
 	}
+	var bd_line int
 	for i := 1; i <= size; i++ {
-		for j := 1; j <= size; j++ {
-			if i == j && field[Key{x: i, y: j}] == move  {
-				d_line++
-			}
-			if d_line == size {
-				return true
-			}
+		if field[Key{x: i, y: i}] == move  {
+			bd_line++
+		}
+		if bd_line == size {
+			return true
 		}
 	}
+	var fd_line int
 	for i := 1; i <= size; i++ {
-		for j := 1; j <= size; j++ {
-			if i + j == size + 1 && field[Key{x: i, y: j}] == move && field[Key{x: j, y: i}] == move  {
-				if (i > j && field[Key{x: i-j, y: i-j}] == move) || (j > i && field[Key{x: j-i, y: j-i}] == move) {
-					return true
-				}
-			}
+		if field[Key{x: i, y: size + 1 - i}] == move {
+			fd_line++
+		}
+		if fd_line == size {
+			return true
 		}
 	}
 	return false
