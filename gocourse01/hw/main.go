@@ -2,29 +2,29 @@ package main
 
 import (
 	"fmt"
-	"strings"
 	"github.com/fatih/color"
 	"strconv"
+	"strings"
 )
 
 type (
-	title string
-	body string
+	title           string
+	body            string
 	educationPeriod string
-	calcYears func ()
-	generateTitle func (text title)
-	generateBody func (text body)
+	calcYears       func()
+	generateTitle   func(text title)
+	generateBody    func(text body)
 )
 
 func formatTitle(text title) {
-    white := color.New(color.FgWhite)
-    boldWhite := white.Add(color.Bold)
-    boldWhite.Println(text)
+	white := color.New(color.FgWhite)
+	boldWhite := white.Add(color.Bold)
+	boldWhite.Println(text)
 }
 
 func formatBody(text body) {
-    blue := color.New(color.FgBlue)
-    blue.Println(text)
+	blue := color.New(color.FgBlue)
+	blue.Println(text)
 }
 
 func (b body) Border() {
@@ -42,12 +42,12 @@ func (ep educationPeriod) calcYears() int {
 	return end - start
 }
 
-func printYears (years int) {
+func printYears(years int) {
 	red := color.New(color.FgHiRed)
 	red.Printf("Education lasted: %d years\n", years)
 }
 
-func generateChapter (title_text title, body_text body, years int, title generateTitle, body generateBody) {
+func generateChapter(title_text title, body_text body, years int, title generateTitle, body generateBody) {
 	body_text.Border()
 	title(title_text)
 	body(body_text)
@@ -57,10 +57,10 @@ func generateChapter (title_text title, body_text body, years int, title generat
 
 const (
 	school_period educationPeriod = "1995-2005"
-	uni_period educationPeriod = "2005-2010"
-	school_title title = "School time! 🤪"
-	uni_title title = "University time! ✍"
-	school_body body = `
+	uni_period    educationPeriod = "2005-2010"
+	school_title  title           = "School time! 🤪"
+	uni_title     title           = "University time! ✍"
+	school_body   body            = `
 Went to scool. It was very nice! Better than kindegrarden`
 	uni_body body = `
 Went to University. It was better than school!`

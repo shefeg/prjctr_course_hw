@@ -1,7 +1,7 @@
-	// exercise
-	// 1. Make a roaring tiger, which extends a cat
-	// implement: mewing and roaring
-	// 2. Make a trash bin, which have an ability to accept garbage, can be filled or empty
+// exercise
+// 1. Make a roaring tiger, which extends a cat
+// implement: mewing and roaring
+// 2. Make a trash bin, which have an ability to accept garbage, can be filled or empty
 
 package main
 

@@ -116,7 +116,7 @@ func checkResult(move string, field map[Key]string, size int) bool {
 	}
 	var bd_line int
 	for i := 1; i <= size; i++ {
-		if field[Key{x: i, y: i}] == move  {
+		if field[Key{x: i, y: i}] == move {
 			bd_line++
 		}
 		if bd_line == size {
@@ -143,7 +143,7 @@ func main() {
 	field := make(map[Key]string)
 	printField(true, field, fieldSize)
 	fmt.Println()
-	for i := 1; i <= fieldSize * fieldSize; i++ {
+	for i := 1; i <= fieldSize*fieldSize; i++ {
 		if i%2 != 0 {
 			player := 1
 			fmt.Println("Player", player)

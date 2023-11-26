@@ -2,7 +2,7 @@ package types
 
 type Child struct {
 	Name string
-	Age int
+	Age  int
 }
 
 type Couple struct {

@@ -4,8 +4,8 @@
 package main
 
 import (
-	"fmt"
 	"couples/types"
+	"fmt"
 )
 
 func main() {
@@ -13,7 +13,7 @@ func main() {
 	couple_with_child := types.Couple{
 		Child: &types.Child{
 			Name: "Erik",
-			Age: 2,
+			Age:  2,
 		},
 	}
 	fmt.Printf("Happy couple: %+v\n", couple_with_child.Child)
